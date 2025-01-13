@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RequestAmountController;
+use App\Http\Controllers\AdminController;
 
 
 use Inertia\Inertia;
@@ -42,7 +43,15 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['role:admin']], function () {
     Route::get('/admin', function () {
         return 'Admin Dashboard';
+
     });
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard.index');
+
+    Route::get('/admin/requests', [AdminController::class, 'showRequests'])->name('admin.requests');
+    Route::get('/admin/requests/{id}', [AdminController::class, 'showRequestDetails'])->name('admin.requests.details');
+
+    Route::post('/admin/requests/update-status', [AdminController::class, 'updateRequestStatus']);
+
 });
 
 require __DIR__.'/auth.php';
