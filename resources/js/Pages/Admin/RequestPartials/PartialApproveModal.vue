@@ -20,10 +20,10 @@
 
       <!-- Approved Amount Input -->
       <div class="mb-4">
-        <label for="approvedAmount" class="block text-gray-700">Approved Amount (Optional)</label>
+        <label for="approve_amount" class="block text-gray-700">Approved Amount (Optional)</label>
         <input
-          id="approvedAmount"
-          v-model="approvedAmount"
+          id="approve_amount"
+          v-model="approve_amount"
           type="number"
           min="0"
           class="w-full p-2 border border-gray-300 rounded-md"
@@ -70,7 +70,7 @@ export default {
   data() {
     return {
       remarks: '',
-      approvedAmount: null, // To hold the approved amount
+      approve_amount: null, // To hold the approved amount
     };
   },
   methods: {
@@ -78,7 +78,7 @@ export default {
     submitPartialApproval() {
       const payload = {
         remarks: this.remarks,
-        approvedAmount: this.approvedAmount !== null ? this.approvedAmount : 0, // Handle null as 0
+        approve_amount: this.approve_amount !== null ? this.approve_amount : 0, // Handle null as 0
       };
       this.$emit('partial-approve-request', payload); // Emit the payload with remarks and approvedAmount
     },

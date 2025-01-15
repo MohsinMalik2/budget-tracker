@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request as HttpRequest;
 
@@ -12,7 +14,14 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/AdminDashboard');
+        return Inertia::render('Admin/AdminDashboard', [
+            'user' => Auth::user(),
+            'totalRequests' => Request::count(),
+            'pendingRequests' => Request::where('status', 'Pending')->count(),
+            'approvedRequests' => Request::where('status', 'Approved')->count(),
+            'declinedRequests' => Request::where('status', 'Disapproved')->count(),
+            'totalSpent' => Request::sum(\DB::raw('COALESCE(approve_amount, requested_amount)')),
+        ]);
     }
 
     public function showRequests()
@@ -47,16 +56,17 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'id' => 'required|exists:requests,id',
-            'status' => 'required|string|in:Approved,Disapproved,Partial Approved',
+            'status' => 'required|string|in:Approved,Disapproved,Partially Approved',
             'remarks' => 'nullable|string', // Optional remarks
+            'approve_amount' => 'nullable|integer|min:0|max:9999999999', // Validate approve_amount as integer
         ]);
 
         try {
             $requestDetails = Request::findOrFail($validated['id']);
             $requestDetails->status = $validated['status'];
             $requestDetails->remarks = $validated['remarks'] ?? null; // Store remarks if provided
+            $requestDetails->approve_amount = $validated['approve_amount'] ?? null; // Use validated data
             $requestDetails->save();
-
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Internal Server Error'], 500);

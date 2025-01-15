@@ -4,6 +4,8 @@
     import { ref, onMounted } from 'vue';
     import { usePage, router } from '@inertiajs/vue3';
     import axios from 'axios';
+    import CreateRequestModal from '@/Pages/Admin/RequestPartials/CreateRequestModal.vue';  // Import the new modal
+
 
 
     // Fetch the initial paginated data passed from the backend
@@ -12,7 +14,6 @@
     const requestList = ref(initialRequests.data); // Store the list of requests
     const isLoading = ref(false);
     const error = ref(null);
-
 
     // Method to handle viewing the request
     const viewRequest = (requestId) => {
@@ -58,10 +59,8 @@
     <div class="overflow-x-auto">
       <!-- Action Buttons -->
       <div class="py-5 text-right">
-        <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          + Create New Request
+        <button @click="openCreateRequestModal" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            + Create New Request
         </button>
       </div>
 
@@ -120,4 +119,56 @@
       </div>
     </div>
   </AdminLayout>
+
+
+  <CreateRequestModal
+    v-if="showCreateRequestModal"
+    :showModal="showCreateRequestModal"
+    :isSubmitting="isSubmitting"
+    @create-request="handleCreateRequest"
+    @close-modal="closeCreateRequestModal"
+    :auth-user-id="authUserId"
+  />
+
 </template>
+
+
+<script>
+export default {
+  components: {
+    CreateRequestModal,
+  },
+  data() {
+    return {
+      showCreateRequestModal: false,  // Controls visibility of the modal
+      isSubmitting: false,            // Controls if the submit button should be disabled
+    };
+  },
+  methods: {
+    // Method to open the modal
+    openCreateRequestModal() {
+      this.showCreateRequestModal = true;
+    },
+    // Method to close the modal
+    closeCreateRequestModal() {
+      this.showCreateRequestModal = false;
+    },
+    // Method to handle the request submission
+    handleCreateRequest(payload) {
+      this.isSubmitting = true;
+      // Make API call to create the request
+      axios
+        .post('/api/requests', payload)
+        .then(() => {
+          this.isSubmitting = false;
+          this.closeCreateRequestModal();
+          // Optionally, display success message or handle after submission
+        })
+        .catch(() => {
+          this.isSubmitting = false;
+          // Optionally, display error message or handle failure
+        });
+    },
+  },
+};
+</script>

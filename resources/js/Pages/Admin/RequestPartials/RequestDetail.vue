@@ -1,84 +1,84 @@
 <script setup>
-import { ref } from 'vue';
-import { usePage, router } from '@inertiajs/vue3';
-import axios from 'axios';
-import AdminLayout from '@/Layouts/AdminLayout.vue';
-import DisapproveModal from '@/Pages/Admin/RequestPartials/DisapproveModal.vue';
-import PartialApproveModal from '@/Pages/Admin/RequestPartials/PartialApproveModal.vue';  // Import the new modal
-import { Head } from '@inertiajs/vue3';
+    import { ref } from 'vue';
+    import { usePage, router } from '@inertiajs/vue3';
+    import axios from 'axios';
+    import AdminLayout from '@/Layouts/AdminLayout.vue';
+    import DisapproveModal from '@/Pages/Admin/RequestPartials/DisapproveModal.vue';
+    import PartialApproveModal from '@/Pages/Admin/RequestPartials/PartialApproveModal.vue';  // Import the new modal
+    import { Head } from '@inertiajs/vue3';
 
-// Constants
-const STATUS = {
-  PENDING: 'Pending',
-  APPROVED: 'Approved',
-  DISAPPROVED: 'Disapproved',
-  PARTIAL_APPROVED: 'Partial Approved',
-};
+    // Constants
+    const STATUS = {
+        PENDING: 'Pending',
+        APPROVED: 'Approved',
+        DISAPPROVED: 'Disapproved',
+        PARTIAL_APPROVED: 'Partially Approved',
+    };
 
-// Props
-const { request } = usePage().props;
+    // Props
+    const { request } = usePage().props;
 
-// Reactive state
-const requestDetails = ref(request || {
-  user: { name: 'N/A' },
-  requested_amount: 0,
-  reason: 'N/A',
-  title: 'N/A',
-  status: 'N/A',
-  created_at: 'N/A',
-});
-
-const isUpdating = ref(false);
-const showDisapproveModal = ref(false);
-const showPartialApproveModal = ref(false);  // To control the partial approve modal visibility
-
-// Methods
-const updateRequestStatus = async (status, remarks = '', approvedAmount = 0) => {
-  isUpdating.value = true;
-  try {
-    await axios.post('/admin/requests/update-status', {
-      id: requestDetails.value.id,
-      status,
-      remarks,
-      approvedAmount,
+    // Reactive state
+    const requestDetails = ref(request || {
+        user: { name: 'N/A' },
+        requested_amount: 0,
+        reason: 'N/A',
+        title: 'N/A',
+        status: 'N/A',
+        created_at: 'N/A',
     });
-    requestDetails.value.status = status;
-  } catch (error) {
-    alert('Something went wrong while updating the request status.');
-  } finally {
-    isUpdating.value = false;
-  }
-};
 
-const openDisapproveModal = () => {
-  showDisapproveModal.value = true;
-};
+    const isUpdating = ref(false);
+    const showDisapproveModal = ref(false);
+    const showPartialApproveModal = ref(false);  // To control the partial approve modal visibility
 
-const closeDisapproveModal = () => {
-  showDisapproveModal.value = false;
-};
+    // Methods
+    const updateRequestStatus = async (status, remarks = '', approve_amount = 0) => {
+        isUpdating.value = true;
+        try {
+            await axios.post('/admin/requests/update-status', {
+                id: requestDetails.value.id,
+                status,
+                remarks,
+                approve_amount,
+            });
+            requestDetails.value.status = status;
+        } catch (error) {
+            alert('Something went wrong while updating the request status.');
+        } finally {
+            isUpdating.value = false;
+        }
+    };
 
-const openPartialApproveModal = () => {
-  showPartialApproveModal.value = true;  // Show the partial approval modal
-};
+    const openDisapproveModal = () => {
+        showDisapproveModal.value = true;
+    };
 
-const closePartialApproveModal = () => {
-  showPartialApproveModal.value = false;
-};
+    const closeDisapproveModal = () => {
+        showDisapproveModal.value = false;
+    };
 
-const handleDisapprove = (remarks) => {
-  updateRequestStatus(STATUS.DISAPPROVED, remarks);
-  closeDisapproveModal();
-};
+    const openPartialApproveModal = () => {
+        showPartialApproveModal.value = true;  // Show the partial approval modal
+    };
 
-const handlePartialApprove = (payload) => {
-  updateRequestStatus(STATUS.PARTIAL_APPROVED, payload.remarks, payload.approvedAmount);
-  closePartialApproveModal();
-};
+    const closePartialApproveModal = () => {
+        showPartialApproveModal.value = false;
+    };
 
-const goBack = () => {
-  router.get('/admin/requests');
-};
+    const handleDisapprove = (remarks) => {
+        updateRequestStatus(STATUS.DISAPPROVED, remarks);
+        closeDisapproveModal();
+    };
+
+    const handlePartialApprove = (payload) => {
+        updateRequestStatus(STATUS.PARTIAL_APPROVED, payload.remarks, payload.approve_amount);
+        closePartialApproveModal();
+        };
+
+    const goBack = () => {
+        router.get('/admin/requests');
+    };
 </script>
 
 <template>

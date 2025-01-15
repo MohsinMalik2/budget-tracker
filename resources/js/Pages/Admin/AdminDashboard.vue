@@ -7,11 +7,11 @@ import { usePage } from '@inertiajs/vue3';
 const { totalRequests, approvedRequests, pendingRequests, declinedRequests, totalSpent } = usePage().props;
 
 const requestsData = ref({
-  totalRequests,
-  approvedRequests,
-  pendingRequests,
-  declinedRequests,
-  totalSpent,
+  totalRequests : totalRequests,
+  approvedRequests : approvedRequests,
+  pendingRequests : pendingRequests,
+  declinedRequests : declinedRequests,
+  totalSpent : totalSpent,
 });
 
 onMounted(() => {
